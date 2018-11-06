@@ -1,0 +1,1 @@
+this folder is the first implementation.  Uses dennybritz' algorithm and take in the two train datasets.  Output is stored in CNN1output.txt
