@@ -7,7 +7,7 @@ import pickle
 from keras.models import Sequential
 from keras.layers import LSTM, Activation, Dense, Dropout, Embedding
 from keras.optimizers import Adam
-from keras.callbacks import Callback
+from keras.callbacks import Callback, ModelCheckpoint
 
 TF_CPP_MIN_LOG_LEVEL=2
 
@@ -28,14 +28,14 @@ def main():
     batch_size = 128
     batch_print_int = 10 # number of batches to run before printing loss during training
     
-#    # load and preprocess data
-#    x_train, y_train, vocab_processor = preprocess(file_path_dem, file_path_rep)
-#    
-#    # save data to file (so no need to re-load data every run)
-#    save_data(save_filename, [x_train, y_train, vocab_processor])
+    # load and preprocess data
+    x_train, y_train, vocab_processor = preprocess(file_path_dem, file_path_rep)
+    
+    # save data to file (so no need to re-load data every run)
+    save_data(save_filename, [x_train, y_train, vocab_processor])
 
-    # open data from file (if saved)
-    x_train, y_train, vocab_processor = open_data(save_filename)
+#    # open data from file (if saved)
+#    x_train, y_train, vocab_processor = open_data(save_filename)
     
     # build RNN model
     max_words = len(vocab_processor.vocabulary_)
@@ -43,8 +43,8 @@ def main():
     model = build_RNN(max_words, max_len)
     
     # train/vaildate RNN
-    model, history = train_valid_RNN(model, x_train, y_train, lr, beta_1, beta_2, num_epochs, batch_size, valid_split, batch_print_int)
-    
+    model, history = train_valid_RNN(model, x_train, y_train, lr, beta_1, beta_2, num_epochs, batch_size, valid_split, batch_print_int, save_weights)
+      
     # save model weights
     model.save_weights(save_weights)
     
@@ -79,7 +79,8 @@ def open_data(save_filename):
     print('Features Shape:', x_train.shape)
     print('Labels Shape:', y_train.shape, '\n')
     
-    return x_train, y_train, vocab_processor       
+    return x_train, y_train, vocab_processor    
+   
 def preprocess(file_path_dem, file_path_rep):
     
     # inputs the positive and negative examples
@@ -137,12 +138,16 @@ def build_RNN(max_words, max_len):
     
     return model
 
-def train_valid_RNN(model, x_train, y_train, lr, beta_1, beta_2, num_epochs, batch_size, valid_split, batch_print_int):
+def train_valid_RNN(model, x_train, y_train, lr, beta_1, beta_2, num_epochs, batch_size, valid_split, batch_print_int, save_weights):
     
+    checkpointer = ModelCheckpoint(save_weights, monitor = 'val_loss', verbose = 1, save_best_only = True)
     print('Training Model...')
-    
     model.compile(loss = 'binary_crossentropy', optimizer = Adam(lr, beta_1, beta_2), metrics = ['accuracy'])
-    history = model.fit(x_train, y_train, batch_size = batch_size, epochs = num_epochs, validation_split = valid_split, callbacks = [NBatchLogger(batch_print_int)])
+    
+    # load saved weights as starting point
+    model.load_weights(save_weights)
+    
+    history = model.fit(x_train, y_train, batch_size = batch_size, epochs = num_epochs, validation_split = valid_split, callbacks = [NBatchLogger(batch_print_int), checkpointer])
     
     print('Model training complete.', '\n')
     
