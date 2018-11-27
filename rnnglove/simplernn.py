@@ -16,10 +16,10 @@ from rnn_utils import *
 
 
 #inputs the positive and negative examples
-#tf.flags.DEFINE_string("positive_data_file", "./twtdemtrain3.txt", "Data source for the positive data.")
-#tf.flags.DEFINE_string("negative_data_file", "./twtreptrain3.txt", "Data source for the negative data.")
-tf.flags.DEFINE_string("positive_data_file", "./rt-polarity.pos", "Data source for the positive data.")
-tf.flags.DEFINE_string("negative_data_file", "./rt-polarity.neg", "Data source for the negative data.")
+tf.flags.DEFINE_string("positive_data_file", "./twtdemtrain3.txt", "Data source for the positive data.")
+tf.flags.DEFINE_string("negative_data_file", "./twtreptrain3.txt", "Data source for the negative data.")
+#tf.flags.DEFINE_string("positive_data_file", "./rt-polarity.pos", "Data source for the positive data.")
+#tf.flags.DEFINE_string("negative_data_file", "./rt-polarity.neg", "Data source for the negative data.")
 
 
 
